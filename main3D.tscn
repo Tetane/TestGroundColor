@@ -1,0 +1,118 @@
+[gd_scene load_steps=19 format=3 uid="uid://dxurpi3twxq1r"]
+
+[ext_resource type="Shader" uid="uid://b5obgeckawhtk" path="res://main3D.tres" id="1_dsahu"]
+[ext_resource type="Script" path="res://Player.gd" id="1_tlrys"]
+[ext_resource type="Script" path="res://Node3D.gd" id="1_ybaim"]
+[ext_resource type="Shader" uid="uid://1iegjakqad0v" path="res://main3D2.tres" id="4_u1e7m"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_du8ol"]
+sky_curve = 0.0274516
+sky_energy_multiplier = 1.93
+
+[sub_resource type="Sky" id="Sky_ogx36"]
+sky_material = SubResource("ProceduralSkyMaterial_du8ol")
+
+[sub_resource type="Environment" id="Environment_8vyoh"]
+background_mode = 2
+sky = SubResource("Sky_ogx36")
+sdfgi_enabled = true
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_stcox"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wgxol"]
+render_priority = 0
+shader = ExtResource("1_dsahu")
+
+[sub_resource type="BoxMesh" id="BoxMesh_tlr68"]
+size = Vector3(20, 0.5, 20)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_mflus"]
+points = PackedVector3Array(-10, -0.25, -10, -10, 0.25, -10, 10, -0.25, -10, -10, -0.25, 10, -10, 0.25, 10, 10, 0.25, -10, 10, -0.25, 10, 10, 0.25, 10)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_gghmt"]
+height = 1.8
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_voppi"]
+height = 1.8
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_ityxk"]
+viewport_path = NodePath("Node3D/SubViewport")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6bdhx"]
+resource_local_to_scene = true
+shading_mode = 0
+albedo_texture = SubResource("ViewportTexture_ityxk")
+
+[sub_resource type="QuadMesh" id="QuadMesh_qnrr3"]
+size = Vector2(3, 3)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qhoyr"]
+render_priority = 0
+shader = ExtResource("4_u1e7m")
+
+[sub_resource type="BoxMesh" id="BoxMesh_gcduw"]
+size = Vector3(20, 0.5, 20)
+
+[node name="Node" type="Node"]
+
+[node name="Node3D" type="Node3D" parent="."]
+script = ExtResource("1_ybaim")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Node3D"]
+environment = SubResource("Environment_8vyoh")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Node3D"]
+transform = Transform3D(0.858557, 0.111724, -0.500397, 0.512717, -0.187084, 0.837926, 0, -0.97597, -0.217905, 0, 5.99718, 0)
+light_cull_mask = 4294967291
+shadow_enabled = true
+
+[node name="Floor" type="StaticBody3D" parent="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+physics_material_override = SubResource("PhysicsMaterial_stcox")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Node3D/Floor"]
+layers = 2
+material_override = SubResource("ShaderMaterial_wgxol")
+mesh = SubResource("BoxMesh_tlr68")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node3D/Floor"]
+shape = SubResource("ConvexPolygonShape3D_mflus")
+
+[node name="Player" type="CharacterBody3D" parent="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0.501518)
+script = ExtResource("1_tlrys")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Node3D/Player"]
+layers = 2
+gi_mode = 2
+mesh = SubResource("CapsuleMesh_gghmt")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Node3D/Player"]
+shape = SubResource("CapsuleShape3D_voppi")
+
+[node name="Camera3D" type="Camera3D" parent="Node3D/Player"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35871, 3.58888)
+cull_mask = 1048571
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.30566, -11.4549)
+material_override = SubResource("StandardMaterial3D_6bdhx")
+mesh = SubResource("QuadMesh_qnrr3")
+
+[node name="SubViewport" type="SubViewport" parent="Node3D"]
+scaling_3d_scale = 0.25
+size = Vector2i(3, 3)
+render_target_update_mode = 4
+
+[node name="SmallOrthogonalCamera" type="Camera3D" parent="Node3D/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 2.36245, 0.501518)
+cull_mask = 1048573
+projection = 1
+size = 0.1
+
+[node name="FloorUnshadedBlackAndWhite" type="MeshInstance3D" parent="Node3D/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.248803, 0)
+layers = 4
+material_override = SubResource("ShaderMaterial_qhoyr")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_gcduw")
